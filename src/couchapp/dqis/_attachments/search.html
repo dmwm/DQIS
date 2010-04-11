@@ -1,0 +1,737 @@
+<!doctype html>
+<html>
+
+    <head>
+        <title>DQIS CouchApp</title>
+        
+        <script type="text/javascript" src="/_utils/script/json2.js"></script>
+        <script type="text/javascript" src="/_utils/script/jquery.js?1.3.1"></script>
+        <script type="text/javascript" src="/_utils/script/jquery.couch.js?0.9.0"></script>
+        <script type="text/javascript" src="/_utils/script/jquery.couch.js?0.9.0"></script>
+        <script type="text/javascript" src="js/jquery.md5.js"></script>
+
+
+
+        <!-- Sam Skin CSS for TabView -->
+        <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.0r4/build/tabview/assets/skins/sam/tabview.css">
+
+        <!-- JavaScript Dependencies for Tabview: -->
+        <script src="http://yui.yahooapis.com/2.8.0r4/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+        <script src="http://yui.yahooapis.com/2.8.0r4/build/element/element-min.js"></script>
+
+        <!-- OPTIONAL: Connection (required for dynamic loading of data) -->
+        <script src="http://yui.yahooapis.com/2.8.0r4/build/connection/connection-min.js"></script>
+
+        <!-- Source file for TabView -->
+        <script src="http://yui.yahooapis.com/2.8.0r4/build/tabview/tabview-min.js"></script>
+
+
+
+        <!-- Combo-handled YUI CSS files: -->
+        <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.0r4/build/reset-fonts-grids/reset-fonts-grids.css&2.8.0r4/build/base/base-min.css&2.8.0r4/build/datatable/assets/skins/sam/datatable.css">
+        <!-- Combo-handled YUI JS files: -->
+        <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/yahoo-dom-event/yahoo-dom-event.js&2.8.0r4/build/datasource/datasource-min.js&2.8.0r4/build/dragdrop/dragdrop-min.js&2.8.0r4/build/element/element-min.js&2.8.0r4/build/datatable/datatable-min.js"></script>
+
+        <style type="text/css">
+            .yui-dt table { width:100%;}
+            fieldset td { border: none; }
+        </style>
+
+
+    </head>
+
+    <body class="yui-skin-sam">
+    
+        <div id="doc4">
+            <div id="hd">
+                <h1>DQIS CouchApp</h1>
+                <p>DQIS - Data Quality Information System</p>
+            </div>
+
+            <div id="demo" class="yui-navset">
+            
+                <!-- Tabbed interface menu headers -->
+                <ul class="yui-nav">
+                    <li class="selected">
+                        <a href="#tab1"><em>Get documents</em></a>
+                    </li>
+                    <li>
+                        <a href="#tab2"><em>Filter documents</em></a>
+                    </li>
+                    <li>
+                        <a href="#tab3"><em>Datasets</em></a>
+                    </li>
+                    <li>
+                        <a href="#tab4"><em>B field statistic</em></a>
+                    </li>
+                    <li>
+                        <a href="#tab5"><em>B field analysis</em></a>
+                    </li>
+                </ul>
+                <!-- ENDOF Tabbed interface menu headers -->
+                
+                <div class="yui-content">
+                
+                    <div id="tab1">
+                    
+                        <h2>Get exact document</h2>
+                        <p>If you exactly know what you want</p>
+                        
+                        <div class="yui-g"><!-- Side group -->
+                            <div class="yui-u first"><!-- Left side -->
+                            
+                                <h3>Get by document ID</h3>
+                                <fieldset>
+                                    <legend>Get document by ID</legend>
+                                    
+                                    <table>
+                                        <tr>
+                                            <td><label for="idoc_id">ID</label></td>
+                                            <td><input type="text" id="idoc_id" name="idoc_id" value="">
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                            <td><input type="submit" class="button" onclick="get_document_id($('#idoc_id').val());"></td>
+                                        </tr>
+                                    </table>
+                                </fieldset>
+                            </div><!-- ENDOF Left side -->
+                            
+                            <div class="yui-u"><!-- Right side -->
+                                <h3>Get document by run, lumi and dataset</h3>
+
+                                <fieldset>
+                                    <legend>Show document by run, lumi and dataset</legend>
+
+                                    <table>
+                                        <tr>
+                                            <td><label for="irun">Run</label></td>
+                                            <td><input type="text" name="irun" id="irun" value=""/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><label for="ilumi">Lumi</label></td>
+                                            <td><input type="text" name="ilumi" id="ilumi" value=""/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><label for="idataset">Dataset</label></td>
+                                            <td><input type="text" name="idataset" id="idataset" value=""/></td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                            <td><input type="submit" onclick="get_document_rld();"></td>
+                                        </tr>                                        
+                                    </table>
+                      
+                                </fieldset>
+                            </div> <!-- EOF Right side -->
+                        </div> <!-- ENDOF Side group -->
+
+                        <div id="document_preview"></div>
+                    </div> <!-- ENDOF first tab -->
+
+                    <div id="tab2">
+                        <h2>Filter Documents</h2>
+                        <p>Tab Two Content</p>
+                        
+                        <div class="yui-g">
+                            <div class="yui-u first"><!-- Left side -->
+                                <h3>Small heading</h3>
+                                <fieldset>
+                                    <legend>Documents with DQ key
+                                    </legend>
+                                    
+                                    <table>
+                                        <tr>
+                                            <td><label for="isel_key">Select key</label></td>
+                                            <td>
+                                                <select class="span-4" id="isel_key" onchange="">
+                                                    <option>
+                                                    </option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><label for="isel_key">Select state</label></td>
+                                            <td>
+                                                <select id="isel_sate">
+                                                    <option value="falsetrue">True and False
+                                                    </option>
+                                                    <option value="true">True
+                                                    </option>
+                                                    <option value="false">False
+                                                    </option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><label for="iruns1">Runs (start)</label></td>
+                                            <td><input type="text" id="iruns1" value=""></td>
+                                        </tr>
+                                        <tr>
+                                            <td><label for="iruns2">Runs (end)</label></td>
+                                            <td><input type="text" id="iruns2" value=""></td>
+                                        </tr>
+                                        <tr>
+                                            <td><label for="isel_what_to_show">What to Show</label></td>
+                                            <td>
+                                                <select id="isel_what_to_show">
+                                                    <option value="data">Show data
+                                                    </option>
+                                                    <option value="count">Only count
+                                                    </option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                            <td><input type="submit" class="button" onclick="query_documents_with_dq_key();"></td>
+                                        </tr>
+                                    </table>
+                                    
+                                </fieldset>
+                            </div> <!-- ENDOF left side  -->
+                            
+                            <div class="yui-u "><!-- Right side -->
+                                <h3>Short Information</h3>
+                            </div>
+                        </div><!--  ENDOF grouping -->
+                        
+                        <div id="documents_with_dq_key"></div>
+                        
+                    </div> <!-- ENDOF second tab -->
+                    
+                    
+                    <div id="tab3">
+                        <div class="yui-g">
+                            <div class="yui-u first">
+                                <h2>Data filtering by primary dataset</h2>
+                                
+                                <fieldset>
+                                    <legend>Count of primary datasets by run</legend>
+                                    <table>
+                                        <tr>
+                                            <td><label for="sdataset">ID</label></td>
+                                            <td>
+                                                <select id="sdataset">
+                                                    <option>
+                                                    </option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                            <td><input type="submit" value="submit" class="button" onclick="get_datasets_count_by_run($('#sdataset').val()); "></td>
+                                        </tr>
+                                    </table>
+                                                                  
+                                </fieldset>
+                            </div><!-- End first -->
+                            <div class="yui-u ">
+                                <div id="tdatasets_count_by_run"></div>
+                            </div>
+                        </div>
+                    </div><!-- END tab 3 -->
+                    
+                    <div id="tab4">
+                        <h1>Bfield statistic</h1>
+                        <div id="tbfield_counter"></div>
+                    </div>
+                    
+                    <div id="tab5">
+                        <div class="yui-g">
+                            <div class="yui-u first">
+
+                                <fieldset>
+                                    <legend>Records with b value</legend>
+                                    
+                                    <table>
+                                        <tr>
+                                            <td><label for="bfield">bField</label></td>
+                                            <td><input type="text"  id="bfield" value=""/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><label for="bfield_data_or_run">What to show</label></td>
+                                            <td>
+                                                <select id="bfield_data_or_run">
+                                                    <option value="count">Count
+                                                    </option>
+                                                    <option value="list">List
+                                                    </option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                            <td><input type="submit" onclick="get_bfilter();"></td>
+                                        </tr>
+                                    </table>
+                                </fieldset>
+                            </div> <!-- end first -->
+                            <div class="yui-u ">
+                                <div id="btable"></div>
+                            </div>
+                        </div>
+
+                    </div><!-- End tab 5 -->
+                </div><!--  end contnet -->
+
+            </div><!-- end navs -->
+     </div><!-- doc 4 -->
+            
+        
+
+     
+
+            <script type="text/javascript">
+
+ 
+                    
+
+            
+                var myColumnDefs2 = [
+                    //{ key: '_id' },
+                    //{ key: '_rev' },
+                    { key: 'run', sortable: true, formatter: "number" },
+                    { key: 'lumi', sortable: true, formatter: "number" },
+                    { key: 'bfield', sortable: true, formatter: "number" },
+                    { key: 'dataset', sortable: true },
+                    { key: 'timestamp' , sortable: true, formatter:YAHOO.widget.DataTable.formatDate },
+                    { key: 'map' },
+
+                ];
+
+                var myColumnDefs3 = [
+                    { key: 'id' },
+                    { key: 'key[0]', label: 'Key' },
+                    { key: 'key[1]', label: 'Run' },
+                    { key: 'key[2]', label: 'State' },
+                    //{ key: 'key' },
+                    //{ key: 'run' },
+                    //{ key: 'state' },
+                ];
+
+
+                var myColumnDefs4 = [
+                    //{ key: 'key[0]', label: 'Key' },
+                    { key: 'key[1]', label: 'Run' },
+                    { key: 'value', label: 'Count' },
+                ];
+
+                var myColumnDefs5 = [
+                    //{ key: 'key[0]', label: 'Key' },??
+                    { key: 'key[0]', label: 'b-field' },
+                    { key: 'value', label: 'Count' },
+                ];
+
+                var myColumnDefs6 = [
+                    //{ key: 'key[0]', label: 'bfield' },
+                    { key: 'key[1]', label: 'Run' },
+                    { key: 'value', label: 'Count' },
+                ];
+
+
+                var myColumnDefs7 = [
+                    { key: 'id', label: 'ID' },
+                    { key: 'key[1]', label: 'Run' },
+
+                ];
+
+
+
+                var myDataSource2 = new YAHOO.util.LocalDataSource({'rows':[]});
+                myDataSource2.responseType = YAHOO.util.LocalDataSource.TYPE_JSON;
+                myDataSource2.responseSchema = {
+                    resultsList: 'rows' ,
+                    fields: [
+                        { key: '_id'  } ,
+                        { key: '_rev' },
+                        { key: 'run'  },
+                        { key: 'lumi' },
+                        { key: 'bfield',  parser: function(v){ return String(v); } },
+                        { key: 'dataset', parser: function(v){ return ["/", v.join("/")].join(""); } },
+                        { key: 'timestamp' },
+                        { key: 'map', parser: function(map){
+                                var result = "";
+                                for (var key in map){
+                                    var value = map[key];
+                                    result = result + String(key) + ": " + String(value) + "<br />";
+                                }
+                                return result;
+                            }  },
+                    ]
+                };
+
+
+
+                var myDataSource3 = new YAHOO.util.LocalDataSource({'rows':[]});
+                myDataSource3.responseType = YAHOO.util.LocalDataSource.TYPE_JSON;
+                myDataSource3.responseSchema = {
+                    resultsList: 'rows' ,
+                    fields: [
+                        { key: 'id'  } ,
+                        { key: 'key[0]', parser: function(v){ return String(v); } }, //key
+                        { key: 'key[1]', parser: function(v){ return parseInt(v); } }, //run
+                        { key: 'key[2]', parser: function(v){ return Boolean(v); } }, //state
+                    ]
+                };
+
+
+                var myDataSource4 = new YAHOO.util.LocalDataSource({'rows':[]});
+                myDataSource4.responseType = YAHOO.util.LocalDataSource.TYPE_JSON;
+                myDataSource4.responseSchema = {
+                    resultsList: 'rows' ,
+                    fields: [
+                        //{ key: 'key[0]', parser: function(v){ return String(v); } }, //key
+                        { key: 'key[1]', parser: function(v){ return parseInt(v); } }, //run
+                        { key: 'value', parser: function(v){ return parseInt(v); } }, //count
+                    ]
+                };
+
+
+                var myDataSource5 = new YAHOO.util.LocalDataSource({'rows':[]});
+                myDataSource5.responseType = YAHOO.util.LocalDataSource.TYPE_JSON;
+                myDataSource5.responseSchema = {
+                    resultsList: 'rows' ,
+                    fields: [
+
+                        { key: 'key[0]', parser: function(v){ if (v != null) {return parseInt(v);}else{return String(v);}} }, //bfield
+                        { key: 'value', parser: function(v){ return parseInt(v); } }, //count
+                    ]
+                };
+
+                var myDataSource6 = new YAHOO.util.LocalDataSource({'rows':[]});
+                myDataSource6.responseType = YAHOO.util.LocalDataSource.TYPE_JSON;
+                myDataSource6.responseSchema = {
+                    resultsList: 'rows' ,
+                    fields: [
+
+                        { key: 'key[1]', parser: function(v){ return parseInt(v); }}, //bfield
+                        { key: 'value', parser: function(v){ return parseInt(v); } }, //count
+                    ]
+                };
+
+                var myDataSource7 = new YAHOO.util.LocalDataSource({'rows':[]});
+                myDataSource7.responseType = YAHOO.util.LocalDataSource.TYPE_JSON;
+                myDataSource7.responseSchema = {
+                    resultsList: 'rows' ,
+                    fields: [
+                        { key: 'id', parser: function(v){ return String(v); } }, //count
+                        { key: 'key[1]', parser: function(v){ return parseInt(v); }}, //run
+
+                    ]
+                };
+
+
+
+
+                var myDataTable2 = new YAHOO.widget.DataTable("document_preview",
+                myColumnDefs2, myDataSource2, {caption:"Document preview"});
+
+                var myDataTable3 = new YAHOO.widget.DataTable("documents_with_dq_key",
+                myColumnDefs3, myDataSource3, {caption:"Documents preview"});
+
+                var myDataTable4 = new YAHOO.widget.DataTable("tdatasets_count_by_run",
+                myColumnDefs4, myDataSource4, {caption:"Documents preview"});
+
+                var myDataTable5 = new YAHOO.widget.DataTable("tbfield_counter",
+                myColumnDefs5, myDataSource5, {caption:"Documents preview"});
+
+                var myDataTable6 = new YAHOO.widget.DataTable("btable",
+                myColumnDefs6, myDataSource6, {caption:"Documents preview"});
+
+                  var myDataTable7 = new YAHOO.widget.DataTable("btable",
+                myColumnDefs7, myDataSource7, {caption:"Document preview"});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                function get_document_id(doc_id){
+                    var database = $.couch.db('dqis');
+                    database.openDoc(doc_id, {success: show_document}, {});
+                }
+
+                //@TODO
+                function get_document_rld(){
+                    var run = $("#irun").val();
+                    var lumi = $("#ilumi").val();
+                    var dataset = $("#idataset").val();
+                    var document_id = run + '-' + lumi + '-' +$.md5(dataset); //shoud be validator
+                    get_document_id(document_id);
+                }
+
+                function show_document_clear(){
+                    $("#doc_id").html("&nbsp;");
+                    $("#doc_rev").html("&nbsp;");
+                    $("#doc_run").html("&nbsp;");
+                    $("#doc_lumi").html("&nbsp;");
+                    $("#doc_bfield").html("&nbsp;");
+                    $("#doc_dataset").html("&nbsp;");
+                    $("#doc_map_list").html("&nbsp;");
+                    $("#doc_timestamp").html("&nbsp;");
+                }
+
+                function show_document(data, textStatus, XMLHttpRequest){
+                    myDataSource2.liveData = {'rows':[data]};
+                    myDataSource2.sendRequest(null,
+                    {success: myDataTable2.onDataReturnInitializeTable}, myDataTable2);
+                }
+
+
+                function show_all_keys(data, textStatus, XMLHttpRequest){
+
+                    for each (var row in data['rows']){
+                        var key = row["key"][0];
+                        var text = '<option>' + key +'</option>'
+                        $("#isel_key").append(text);
+                    }
+                }
+
+                function show_documents_with_dq_key(doc, textStatus, XMLHttpRequest){
+                    var data = doc;
+                    myDataSource3.liveData = data;
+                    myDataSource3.sendRequest(null,
+                    {success: myDataTable3.onDataReturnInitializeTable}, myDataTable3);
+
+
+
+               
+                }
+
+                function documents_with_dq_key_count(doc, textStatus, XMLHttpRequest){
+                    //DOES NOT EXISTS $("#tbl_docs_with_dq_key").find("caption").html("Elements count:" + String(doc['rows'][0]['value']));
+                }
+
+
+                function get_documents_with_dq_key(key, start_value, end_value, run1, run2, only_count){
+
+                    var database = $.couch.db('dqis');
+                    var vreduce = false;
+                    var oc = false || only_count;
+
+                    if (run1 != ""){ //todo striping whitespaces
+                        var run1 = parseInt(run1);
+                    }
+                    else{
+                        var run1 = parseInt(0);
+                    }
+
+                    if (run2 != ""){ //todo striping whitespaces
+                        var run2 = parseInt(run2);
+                    }
+                    else{
+                        var run2 = 'A';
+                    }
+                 //   alert(key);
+                 //   alert(run1);
+                 //   alert(run2);
+                  ///  alert(start_value);
+                   // alert(end_value);
+
+                    if (oc == true){
+                        vreduce = true;
+                        database.view('dqis/keys', {
+                            'reduce': vreduce,
+                            'startkey': [key, run1, Boolean(start_value)],
+                            'endkey': [key, run2, Boolean(end_value)],
+                            success: documents_with_dq_key_count
+                        });
+                    }else{
+
+                        database.view('dqis/keys', {
+                            'reduce': vreduce,
+                            'startkey': [ key, run1, Boolean(start_value)],
+                            'endkey': [key, run2, Boolean(end_value)],
+                            success: show_documents_with_dq_key
+                        });
+                    }
+
+                }
+
+                function query_documents_with_dq_key(){
+
+                    var key = $('#isel_key').val();
+                    var state =$('#isel_state').val();
+                    if (state == "true") {
+                        var start_value = true;
+                        var end_value = true;
+                    }
+                    else if (state == "false"){
+                        var start_value = false;
+                        var end_value = false;
+                    }
+                    else{
+                        var start_value = false;
+                        var end_value = true;
+                    }
+
+                   // $("#tbl_docs_with_dq_key").find("tr:gt(0)").remove();
+                   // $("#tbl_docs_with_dq_key").find("caption").html("");
+
+                    var run1 = $("#iruns1").val();
+                    var run2 = $("#iruns2").val();
+
+                    //if ((run1 == "") || (run2 == "")){
+                    //    run1 = "";
+                    //    run2 = "";
+                    //}
+
+
+                    var wts = $('#isel_what_to_show').val();
+                    if (String(wts) == String('count')){
+                        var show_only_count = true;
+                    }
+                    else { var show_only_count = false; }
+
+                    //var show_only_count = true;
+                    get_documents_with_dq_key(key, start_value, end_value, run1, run2, show_only_count);
+                }
+
+                //---------------------------------------------------------------------------//
+                function get_keys_starts(param){
+                    alert(param);
+                    var database = $.couch.db('dqis');
+                    database.view('dqis/keys',
+                    {
+                        'reduce': false,
+                        'startkey': [ param , false, 0],
+                        'endkey': [param , true, 'A'],
+                        success: function (doc, textStatus, XMLHttpRequest){
+                            var sbk = $("#subkeys_" + param);
+                            for each (var row in doc["rows"]){
+                                var did = row["id"];
+                                sbk.append('<a href="#" onClick="get_document_id(\'' + did + '\'); return true;">' + did +'</a><br />');
+                            }
+                            alert('suc');
+                        }
+                    }
+                );
+
+
+                }
+
+                function show_bfield_counter(data, textStatus, XMLHttpRequest){
+                    myDataSource5.liveData = data;
+                    myDataSource5.sendRequest(null,
+                    {success: myDataTable5.onDataReturnInitializeTable}, myDataTable5);
+
+              
+                }
+
+                //dup from stats
+                function show_primary_dataset_list(data, textStatus, XMLHttpRequest){ //maby change ul
+
+                    var primary_datasets = $("#sdataset");
+                    primary_datasets.find("option").remove();
+
+                    for each (var row in data['rows']){
+                        var txt = '<option value="' + row["key"][0] + '">' + row["key"][0] + '</option>';
+                        // alert(txt);
+                        primary_datasets.append(txt);
+                    }
+
+                }
+
+                function show_datasets_count_by_run(data, textStatus, XMLHttpRequest)
+                {
+
+                    myDataSource4.liveData = data;
+                    myDataSource4.sendRequest(null,
+                    {success: myDataTable4.onDataReturnInitializeTable}, myDataTable4);
+
+                    
+
+                }
+
+                function get_datasets_count_by_run(ds_name){
+                    var database = $.couch.db('dqis');
+
+                    database.view('dqis/primary_datasets', {
+                        'group': true,
+                        'group_level': 2,
+                        'startkey': [String(ds_name), 0],
+                        'endkey': [String(ds_name), 'A'],
+                        success: show_datasets_count_by_run});
+                }
+
+                function show_bfield_run_counter(data, textStatus, XMLHttpRequest){
+                	myDataTable6 = new YAHOO.widget.DataTable("btable",
+                            myColumnDefs6, myDataSource6, {caption:"Document preview"});
+                    
+                    myDataSource6.liveData = data;
+                    myDataSource6.sendRequest(null,
+                    {success: myDataTable6.onDataReturnInitializeTable}, myDataTable6);
+                    
+
+                             
+
+
+
+                }
+
+                function show_bfield_run_lister(data, textStatus, XMLHttpRequest){
+                	 myDataTable7 = new YAHOO.widget.DataTable("btable",
+                             myColumnDefs7, myDataSource7, {caption:"Document preview"});
+
+                	 myDataSource7.liveData = data;
+                     myDataSource7.sendRequest(null,
+                     {success: myDataTable7.onDataReturnInitializeTable}, myDataTable7);
+
+
+                    
+                  
+                }
+
+                function get_bfilter(){
+                    var bval = parseInt($('#ibfield'));
+                    var database = $.couch.db('dqis');
+                    if ($('#bfield_data_or_run').val() == "count"){
+
+
+                        database.view('dqis/bfield', {
+                            'group': true,
+                            'group_level': 2,
+                            'startkey': [bval, 0],
+                            'endkey': [bval, 'A'],
+                            success: show_bfield_run_counter}
+                    );
+                    }
+
+
+                    else{
+                        database.view('dqis/bfield', {
+                            'reduce': false,
+                            'startkey': [bval, 0],
+                            'endkey': [bval, 'A'],
+                            success: show_bfield_run_lister}
+                    );
+                    }
+
+                }
+
+                $(document).ready(function(){
+                    var tabView = new YAHOO.widget.TabView('demo');
+                    var database = $.couch.db('dqis');
+                    database.view('dqis/keys', {'group': true, 'group_level': 1, success: show_all_keys});
+                    database.view('dqis/bfield', {'group': true, 'group_level': 1, success: show_bfield_counter});
+                    database.view('dqis/primary_datasets', {'group': true, 'group_level': 1, success: show_primary_dataset_list});
+                });
+            </script>
+
+
+    </body>
+
+</html>

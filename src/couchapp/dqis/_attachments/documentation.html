@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>DQIS CouchApp - Documentation</title>
+    <script src="/_utils/script/json2.js"></script>
+  <script src="/_utils/script/jquery.js?1.3.1"></script>
+  <script src="/_utils/script/jquery.couch.js?0.9.0"></script>
+    <script src="/_utils/script/jquery.couch.js?0.9.0"></script>
+    <script src="js/jquery.md5.js"></script>
+<!-- Framework CSS -->
+     <link rel="stylesheet" href="blueprint/screen.css" type="text/css" media="screen, projection" />
+     <link rel="stylesheet" href="blueprint/print.css" type="text/css" media="print" />
+     <!--[if IE]><link rel="stylesheet" href="blueprint/ie.css" type="text/css" media="screen, projection" /><![endif]-->
+
+     <!-- Import fancy-type plugin. -->
+     <link rel="stylesheet" href="blueprint/plugins/fancy-type/screen.css" type="text/css" media="screen, projection" />
+
+
+<style>
+    .lbl {
+        font-weight:bold;
+    }
+
+</style>
+  </head>
+  <body>
+  	<h1>DQIS CouchApp</h1>
+    <p>I'm thinking we'll have an instance of dqis for each Acq. Era to keep the number of docs
+    sane. We could pull summary information up into a master/monitor instance. In general it seems
+    that having a map/reduce that counts a quantity and then querying with a specific value and
+    turning off the reduce works well. This will give you a list of id's as well as the key/value
+    pair. A second query to the database for a specific document could then be made. Currently there
+    are no validation functions of input data.</p>
+    <h2>Example data</h2>
+    <p><a href="../../100215-0-1e3918471802abcc83d16192eb21d160">Run 100215, lumi 0, dataset
+    /OfflineMonitor/Commissioning09-Express-v2/FEVTDEBUGHLT</a></p>
+    <p>The id of a document is made up of the run number, the lumi and a hash of the dataset name,
+    so you can algorithmically identify a document for a given run/lumi/dataset. Views are used to
+    identify data based on other conditions. The map in the document is contains only set keys</p>
+    <p>I conclude that we should use <b>keys</b> and have only set keys in the documents.</p>
+    
+    <h2>Command line usage - CLIEditor.py </h2>
+    <p>Script is for editing documments from command line.</p>
+    
+    <p>
+    Commmands are splited to two pars: base (first six) and following arguments.
+    Each command has 6 base arguments (order is important): <br />
+    DB_NAME CONNECTION_ADDRESS ACTION RUN LUMI DATASET
+    <p>
+    
+    <p>
+    Following argments depends on ACTION argument. Action argument can have these values:
+    <ul>
+        <dt>-c</dt>
+        <dd>Create document.<br/>
+            FA: BFIELD [KEY VALUE]...<br />
+            example:
+            <pre>CLIEditor.py dqis 127.0.0.1:5984 -c 111 222 /demodataset  null key8 true key1 true key3 true key4 0</pre>
+        </dd>
+            
+        <dt>-d</dt>
+        <dd>
+            Delete Document.
+            <pre>CLIEditor.py dqis 127.0.0.1:5984 -d 111 222 /demodataset</pre>
+        </dd>
+        
+        <dt>-e</dt>
+        <dd>
+            Edit document key.<br/>
+            FA: KEY VALUE [KEY VALUE]...
+            <pre>CLIEditor.py dqis 127.0.0.1:5984 -e 111 222 /demodataset key8 33</pre>
+        </dd>
+        
+        <dt>-r</dt>
+        <dd>
+            Remove keys. <br />
+            FA: [KEY]..
+            <pre>CLIEditor.py dqis 127.0.0.1:5984  -r 111 222 /demodataset key1</pre>
+        </dd>
+        
+        <dt>-f</dt>
+        <dd>
+            Edit bfield<br/>
+            FA: NEW_BFIELD_VALUE
+            <pre>CLIEditor.py dqis 127.0.0.1:5984  -f 111 222 /demodataset 128</pre>
+        </dd>
+
+    </ul>
+
+    Notes: bfield can have values "null" or integer.     
+    
+    <h2>Command Line Usage - CLI.py</h2>
+    
+<pre>
+
+Options:
+  --version             show program's version number and exit
+  -h, --help            show this help message and exit
+  -u DB_ADDRESS, --url=DB_ADDRESS
+                        Database url.Default address 127.0.0.1:5984
+  -d DB_NAME, --db=DB_NAME
+                        Database name
+  -k KEY, --key=KEY     Key
+  -a ACTION, --action=ACTION
+                        Choose action. Available options: keys, keysfilt,
+                        bvals, bvalfilt, pdataset, show, delete, download,
+                        push.
+  -b BVAL, --bval=BVAL  B value for bvalue filtering
+  -x RUN_START, --runstart=RUN_START
+                        Run start
+  -z RUN_END, --runend=RUN_END
+                        Run end
+  -c BEND, --bend=BEND  B value for bvalue filtering (endpoint)
+  -g, --group           Should be data grouped
+  -r                    Flter by key value true (default none)
+  -s                    Flter by key value false (default none)
+  -o, --includedoc      Should be included document
+  -j, --includeid       Should be document id included
+  -i DOC_ID, --id=DOC_ID
+                        Document ID
+  -f FILENAME, --filename=FILENAME
+                        File name to get/store documents
+  -l GROUP_LEVEL, --grouplevel=GROUP_LEVEL
+                        Grouping level
+</pre>
+
+<p>
+    Show All keys
+    <pre>
+    -a keys
+    </pre>
+</p>
+<p>
+    Show all bfield values
+    <pre>
+    -a bvals
+    </pre>
+</p>
+<p>
+    B value filter with one variable 
+    <pre>
+    -a bvalfilt -b null
+    </pre>
+    <pre>
+    -a bvalfilt -b 3800
+    </pre>
+</p>
+<p>
+    B value filtering with two variables 
+    <pre>
+    -a bvalfilt -b null -c 3800
+    </pre>
+</p>
+<p>
+    B value filtering with two variables and grouping
+    <pre>
+    -a bvalfilt -b null -c 3800 -g
+    </pre>
+</p>
+<p>
+    Primary datasets
+    <pre>
+    -a pdataset
+    </pre>
+</p>
+<p>
+    Primary datasets with grouping
+    <pre>
+    -a pdataset -g
+    </pre>
+</p>
+<p>
+    Show document with ID
+    <pre>
+    -a show --id=112392-0-b64adf765e39d611b8a8548d6b33dcc2
+    </pre>
+</p>
+<p>
+    Delete document with ID
+    <pre>
+    a delete --id=dad4098a78339a0521c44b7a1cce4326
+    </pre>
+</p>
+<p>
+    Download document to file
+    <pre>
+    -a download --id=112392-0-b64adf765e39d611b8a8548d6b33dcc2 --filename=rez.txt
+    </pre>
+</p>
+<p>
+    Push file to db
+    <pre>
+    -a push --id=112392-0-b64adf765e39d611b8a8548d6b33dcc2 --filename=rez.txt
+    </pre>
+</p>
+<p>
+    Filering keys in run interval
+    <pre>
+    -a keysfilt -k hlt_shift_online -g -l 1 -x 60000 -z 70000 -o
+    </pre>
+</p>
+<p>
+    Print help
+    <pre>
+    -h
+    </pre>
+</p>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <h2>DQ views</h2>
+    <ol>
+      <li><b>keys</b> - count of the number of documents with a given DQ key. This can also be used
+      to get a list of id's for a given key.
+        <ul>
+          <li><a href="_view/keys?group=true&group_level=1">all known keys</a>
+                  <pre>_view/keys?group=true&group_level=1</pre>
+
+          </li>
+          <li><a href='_view/keys?group=true&group_level=2&startkey=["l1t_shift_offline",0,false]&endkey=["l1t_shift_offline",{},false]'>l1t_shift_offline false</a>
+	  	          <pre>_view/keys?group=true&group_level=2&startkey=["l1t_shift_offline",0,false]&endkey=["l1t_shift_offline",{},false]</pre>
+    	  </li>
+          <li><a href='_view/keys?group=true&group_level=2&startkey=["l1t_shift_offline",0,false]&endkey=["l1t_shift_offline",{},true]'>l1t_shift_offline true|false</a>
+                  <pre>_view/keys?group=true&group_level=2&startkey=["l1t_shift_offline",0,false]&endkey=["l1t_shift_offline",{},true]</pre>
+          </li>
+	      <li><a href='_view/keys?group=true&group_level=2&startkey=["l1t_shift_offline",0,true]&endkey=["l1t_shift_offline",{},true]'>l1t_shift_offline true</a>
+                  <pre>_view/keys?group=true&group_level=2&startkey=["l1t_shift_offline",0,true]&endkey=["l1t_shift_offline",{},true]</pre>
+          </li>
+          <li><a href='_view/keys?reduce=false&startkey=["l1t_shift_offline",0,true]&endkey=["l1t_shift_offline",{},true]'>l1t_shift_offline true with all id's</a>
+                  <pre>_view/keys?reduce=false&startkey=["l1t_shift_offline",0,true]&endkey=["l1t_shift_offline",{},true]</pre>
+		  </li>
+		<li><a href='_view/keys?startkey=["csc_shift_offline",46700,true]&endkey=["csc_shift_offline",56700,true]&group=true'>All docs with csc_shift_offline=true between run 46700 and 56700.</a></li>
+          <li><a href='_view/keys?startkey=["csc_shift_offline",46700,true]&endkey=["csc_shift_offline",56700,true]&reduce=false'>All docs with csc_shift_offline=true between run 46700 and 56700 including the doc id.</a></li>
+          <li><a href='_view/keys?startkey=["csc_shift_offline",46700,true]&endkey=["csc_shift_offline",56700,true]&reduce=false&include_docs=true'>All docs with csc_shift_offline=true between run 46700 and 56700 including the doc</a></li>
+        </ul>
+      Here's some python for doing a multi-key select:
+      <pre>
+#outdated
+>>> import urllib, json
+>>> url = "http://localhost:5984/dqis/_design/dqis/_view/keys?group=true&"
+>>> post_data = {'keys': [{'l1t_shift_offline',: True}, {'csc_shift_online', True}]}
+>>> f = urllib.urlopen(url, json.dumps(post_data))
+>>> print f.read()
+{"rows":[
+{"key":["l1t_shift_offline",true],"value":901},
+{"key":["csc_shift_online",true],"value":2000}
+]}
+
+>>></pre>
+      You can also get id's back by replacing <pre>group=true</pre> with <pre>reduce=false</pre>
+      </li>
+      <li><b>primary_datasets</b>
+        <ul>
+          <li><a href="_view/primary_datasets?group=true&group_level=1">count of primary datasets</a></li>
+          <li><a href="_view/primary_datasets?group=true&group_level=2">count of primary datasets by run</a></li>
+
+         </ul>
+      </li>
+      <li><b>bfield</b> - count of bfield values
+        <ul>
+          <li><a href="_view/bfield?group=true&group_level=1">count of runs per bfield value</a></li>
+          <li><a href="_view/bfield?startkey=[3800]&endkey=[3801]&group=true&group_level=2">count of records by run for b=3800</a></li>
+          <li><a href="_view/bfield?startkey=[18]&endkey=[19]&reduce=false">list of id's for b=18</a></li>
+        </ul>
+      </li>
+    </ol> 
+  </body>
+
+</html>

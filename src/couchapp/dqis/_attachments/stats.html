@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>DQIS CouchApp - Statistics</title>
+    <script type="text/javascript" src="/_utils/script/json2.js"></script>
+    <script type="text/javascript" src="/_utils/script/jquery.js?1.3.1"></script>
+    <script type="text/javascript" src="/_utils/script/jquery.couch.js?0.9.0"></script>
+
+	<script type="text/javascript">
+
+        //Configuration
+        var database_name = "dqis";
+
+        //Functions
+        /** http://www.roscripts.com/snippets/show/190
+         * Get the human-readable size for an amount of bytes
+         * @param int  size      : the number of bytes to be converted
+         * @param int  precision : number of decimal places to round to;
+         *                         optional - defaults to 2
+         * @param bool long_name : whether or not the returned size tag should
+         *                         be unabbreviated (ie "Gigabytes" or "GB");
+         *                         optional - defaults to true
+         * @param bool real_size : whether or not to use the real (base 1024)
+         *                         or commercial (base 1000) size;
+         *                         optional - defaults to true
+         * @return string        : the converted size
+         */
+        function getSize(size,precision,longName,realSize) {
+           if (typeof precision=="undefined") {
+              precision=2;
+           }
+           if (typeof longName=="undefined") {
+              longName=true;
+           }
+           if (typeof realSize=="undefined") {
+              realSize=true;
+           }
+           var base=realSize?1024:1000;
+           var pos=0;
+           while (size>base) {
+              size/=base;
+              pos++;
+           }
+           var prefix=getSizePrefix(pos);
+           var sizeName=longName?prefix+"bytes":prefix.charAt(0)+'B';
+           sizeName=sizeName.charAt(0).toUpperCase()+sizeName.substring(1);
+           var num=Math.pow(10,precision);
+           return (Math.round(size*num)/num)+' '+sizeName;
+        }
+
+        /** http://www.roscripts.com/snippets/show/190
+         * @param int pos : the distence along the metric scale relitive to 0
+         * @return string : the prefix
+         */
+        function getSizePrefix(pos) {
+           switch (pos) {
+              case  0: return "";
+              case  1: return "kilo";
+              case  2: return "mega";
+              case  3: return "giga";
+              case  4: return "tera";
+              case  5: return "peta";
+              case  6: return "exa";
+              case  7: return "zetta";
+              case  8: return "yotta";
+              case  9: return "xenna";
+              case 10: return "w-";
+              case 11: return "vendeka";
+              case 12: return "u-";
+              default: return "?-";
+           }
+        }
+
+
+
+        function show_db_info(data, textStatus, XMLHttpRequest){
+            $("#doc_count").html(data["doc_count"]);
+            $("#db_size").html(getSize(parseInt(data["disk_size"])));
+            $("#compact_running").html(String(data["compact_running"]));
+        }
+
+        function show_primary_datasets(data, textStatus, XMLHttpRequest){ //maby change ul
+           
+            var primary_datasets = $("#primary_datasets");
+            primary_datasets.find("tr").remove();
+
+            var primary_datasets_count = 0;
+
+            for each (var row in data['rows']){
+                primary_datasets.append('<tr><td>' + row["key"] + '</td><td>' + row["value"] + '</td></tr>');
+                primary_datasets_count = primary_datasets_count +1;
+            }
+
+            $("#primary_datasets_count").html(primary_datasets_count);
+        }
+
+        function show_keys(data, textStatus, XMLHttpRequest){ //maby change ul
+
+            var keys = $("#keys");
+            keys.find("tr").remove();
+
+            var keys_count = 0;
+
+            for each (var row in data['rows']){
+                keys.append('<tr><td>' + row["key"] + '</td><td>' + row["value"] + '</td></tr>');
+                keys_count = keys_count +1;
+            }
+
+            $("#keys_count").html(keys_count);
+        }
+
+
+    $(document).ready(function(){
+        var database = $.couch.db(database_name);        
+        database.info({success: show_db_info});
+        database.view('dqis/primary_datasets', {'group': true, 'group_level': 1, success: show_primary_datasets});
+        database.view('dqis/keys', {'group': true, 'group_level': 1, success: show_keys});
+
+    });
+	</script>
+
+</head>
+
+<body>
+    <h1>DQIS Statistics</h1>
+    <p>
+        Summarised information about DQIS.
+    </p>
+
+    <h1>Menu</h1>
+    <p>
+        <ul>
+            <li>
+                <a href="#keys_table">list of keys</a>
+                (<a href="#keys_count">keys count</a>)
+            </li>
+            <li><a href="#doc_count">number of documents</a></li>
+            <li><a href="#primary_datasets_table">primary dataset list</a></li>
+            <li><a href="#db_size">database size</a></li>
+            <li><a href="#compact_running">compact running</a></li>
+        </ul>
+    </p>
+
+    <p>
+    <table id="db_statistics_table">
+        <caption><em>Database statistics</em></caption>
+        <tbody>
+            <tr>
+                <th>Number of documents</th>
+                <td id="doc_count"></td>
+            </tr>
+            <tr>
+                <th>Database size</th>
+                <td id="db_size"></td>
+            </tr>
+            <tr>
+                <th>Is compact running</th>
+                <td id="compact_running"></td>
+            </tr>
+        </tbody>
+    </table>
+    </p>
+
+    <p>
+    <table id="primary_datasets_table">
+        <caption><em>Primary datasets</em></caption>
+        <thead>
+            <tr>
+                <th>Primary dataset name</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Different primary datasets count</th>
+                <th id="primary_datasets_count"></th>
+            </tr>
+        </tfoot>
+        <tbody id="primary_datasets">
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>           
+    </table>
+    </p>
+
+    <p>
+    <table id="keys_table">
+        <caption><em>Keys</em></caption>
+        <thead>
+            <tr>
+                <th>Key name</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Different keys count</th>
+                <th id="keys_count"></th>
+            </tr>
+        </tfoot>
+        <tbody id="keys">
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    </p>
+
+</body>
+</html>
