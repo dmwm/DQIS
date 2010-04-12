@@ -9,7 +9,7 @@ from optparse import OptionParser
 
 from API import DQISDatabase, DQISResult
 
-
+#for testing
 #import optparse_config
 #from API import DQISDatabase, DQISResult
 #from cli_common import get_connection
