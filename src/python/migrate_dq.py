@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 import sys, os, pickle, hashlib
+import datetime
 from DBSAPI.dbsException import *
 from DBSAPI.dbsApiException import *
 from DBSAPI.dbsApi import DbsApi
 from DBSAPI.dbsDQFlag import DbsDQFlag
 from DBSAPI.dbsRunLumiDQ import DbsRunLumiDQ
 from DBSAPI.dbsConfig import DbsConfig
-
 from WMCore.Database.CMSCouch import CouchServer
 
 def false_or_true(test_string):
@@ -22,7 +22,15 @@ def process_raw_dbs(full_dq_info):
 	for k in full_dq_info.keys():
 		for dq in full_dq_info[k]:
 			if dq['DQFlagList'] != []:
-				migrated_dq = {'run': dq['RunNumber'], 'lumi': dq['LumiSectionNumber'], 'map': {}, 'dataset':k}
+				migrated_dq = {'run': dq['RunNumber'], 
+							   'lumi': dq['LumiSectionNumber'], 
+							   'map': {'_meta':{
+						    			'user':'metson',
+									    'timestamp':str(datetime.datetime.now())
+									    }
+							   }, 
+							   'map_history':[], 
+							   'dataset':k}
 				for flag in dq['DQFlagList']:
 					dq_keys.add(flag['Name'].lower())
 					if flag['Name'].lower() == 'bfield':
@@ -115,6 +123,6 @@ if __name__ == "__main__":
 	print 'transforming data (%s records) and writing to couch' % len(dq)
 
 	for dq_t in dq:
-		cdb.queue(dq_t, timestamp=True)
+		cdb.queue(dq_t)
 
 	cdb.commit()
