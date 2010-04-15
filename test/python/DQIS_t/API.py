@@ -2,7 +2,6 @@ import sys, os, unittest
 import commands
 from WMCore.Database.CMSCouch import CouchServer, Database
 
-print sys.path
 PROJECT_ROOT = os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir,  os.path.pardir, ) 
 #Nasty Hack
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src', 'python',))
@@ -37,10 +36,11 @@ class TestDQISResult(unittest.TestCase):
 
     def test_save(self):
         document = {"_id": "abc", "test":"data"}
-        r = API.DQISResult(dqis_db = self.db, dict = document)        
-        all_docs_count_before = len(self.db.allDocs())
+        r = API.DQISResult(dqis_db = self.db, dict = document)
+        all_docs_count_before = len(self.db.allDocs()['rows'])
         r.save()
-        all_docs_count_after = len(self.db.allDocs())        
+        all_docs_count_after = len(self.db.allDocs()['rows'])        
+        
         self.assertEqual(all_docs_count_before +1, all_docs_count_after)
         
 #        >>> doc = db.document("abc")
