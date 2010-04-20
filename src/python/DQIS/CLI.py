@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Handles options parsing
 
@@ -8,22 +9,6 @@ import hashlib, json, sys
 from optparse import OptionParser
 
 from API import DQISDatabase, DQISResult
-
-#for testing
-#import optparse_config
-#from API import DQISDatabase, DQISResult
-#from cli_common import get_connection
-#from optparse import OptionParser
-#from cli_common import  *
-#import hashlib
-#-------------------------
-#! /usr/bin/env python
-#import sys, hashlib
-#from API import DQISDatabase, DQISResult 
-#from cli_common import  *
-#import socket
-#import httplib
-#import datetime
 
 class ExpectedNullOrInteger(Exception):
     
@@ -103,15 +88,15 @@ class DQIS_CLI_App(object):
                       type="string", 
                       action="store", 
                       dest="db_address", 
-                      help="Database url. Default address 127.0.0.1:5984", 
-                      default="127.0.0.1:5984")
+                      help="Database url. Default address %s" % D_DATABASE_ADDRESS, 
+                      default=D_DATABASE_ADDRESS)
 
         op.add_option("-d", "--database", 
                       type="string",
                       action="store",                
                       dest="db_name", 
-                      help="Database name. Default: 'dqis'", 
-                      default="dqis")
+                      help="Database name. Default: '%s'" % D_DATABASE_NAME, 
+                      default=D_DATABASE_NAME)
         
         op.add_option("-a", "--action", 
                       type="choice",         
