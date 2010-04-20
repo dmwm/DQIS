@@ -10,11 +10,7 @@ class DatabaseNotSetException(Exception):
     
     def __init__(self, value):
         """      
-        >>> exception = DatabaseNotSetException("dummy_test_for_coverage")
-        >>> exception.value
-        'dummy_test_for_coverage'
-        >>> str(exception)
-        'Database is not set. Exception raised by dummy_test_for_coverage'
+        Database is not set. Exception raised by dummy_test_for_coverage
         """
         self.value = value
         
@@ -28,11 +24,7 @@ class DQISResultNotSavable(Exception):
     
     def __init__(self, value):
         """
-        >>> exception = DQISResultNotSavable("dummy_test_for_coverage")
-        >>> exception.value
-        'dummy_test_for_coverage'
-        >>> str(exception)
-        'DQISResult is not saveable. Exception raised by dummy_test_for_coverage'
+        DQISResult is not saveable. Exception raised by dummy_test_for_coverage
         """
         self.value = value
         
@@ -51,18 +43,7 @@ class DQISResult(Document):
         
     def _require_db_connection(self):
         """
-        If DB is not set then it is raised DatabaseNotSetException 
-        
-        >>> DQISResult()._require_db_connection() #doctest: +IGNORE_EXCEPTION_DETAIL
-        Traceback (most recent call last):
-        ...
-        DatabaseNotSetException: Database is not set. Exception raised by {}
-        >>> DQISResult(dqis_db = "dqis_db")._require_db_connection() #doctest: +IGNORE_EXCEPTION_DETAIL
-        Traceback (most recent call last):
-        ...
-        DatabaseNotSetException: Database is not set. Exception raised by {}
-        >>> print DQISResult(dqis_db = Database())._require_db_connection()
-        None
+        If DB is not set then it is raised DatabaseNotSetException        
         """
         if not self.dqis_db or not isinstance(self.dqis_db, Database):
             raise DatabaseNotSetException(self)
@@ -70,12 +51,7 @@ class DQISResult(Document):
     def _find_id(self):
         """
         Tries to find document ID or returns empty string
-        >>> DQISResult()._find_id() == ""
-        True
-        >>> DQISResult(dict = {'id': "123"})._find_id()
-        '123'
-        >>> DQISResult(dict = {'_id': "abc"})._find_id()
-        'abc'
+        
         """
         #in normal case is set one, one or both with the smae value.
         doc_id = self.get('id', "") #because "" can not be database name
@@ -84,15 +60,9 @@ class DQISResult(Document):
             
     def _require_savable(self):
         """
-        Document is saveable if pssible to find "_id". Gettable if has "_id" or "id"
-        
-        >>> DQISResult()._require_savable()
-        Traceback (most recent call last):
-        ...
-        DQISResultNotSavable: DQISResult is not saveable. Exception raised by {}
-        >>> DQISResult(dict = {'_id': "123"})._require_savable()
+        Document is saveable if pssible to find "_id". Gettable if has "_id" or "id"      
         """
-        if not self.get('_id', ""):
+        if not self.get('_id', False):
             raise DQISResultNotSavable(self)
         
         
@@ -100,18 +70,7 @@ class DQISResult(Document):
         """
         Even document is deleted, deletion has to be saved.
         Instant saving. If you need to modify a lot of documents - use 
-        saving_queue
-        >>> db = Database(dbname="dqis")
-        >>> r = DQISResult(dqis_db = db, dict = {"_id": "abc", "test":"data"})
-        >>> r.save() #doctest: +ELLIPSIS
-        {...}
-        >>> doc = db.document("abc")
-        >>> r = DQISResult(dict=doc, dqis_db = db)
-        >>> doc["test"]
-        'data'
-        >>> r.delete()
-        >>> db.commitOne(r) #doctest: +ELLIPSIS
-        {...}
+        saving_queue        
         """
         self._require_db_connection()
         self._require_savable()
@@ -123,13 +82,7 @@ class DQISResult(Document):
         """
         Adding document to parent database saving queue. It is lazy saving 
         so it is required to coll commit byt DB object in the end of commits.
-        #possible to add exception testing
-        >>> r = DQISResult(dqis_db = Database(), dict = {"_id": "abc"})
-        >>> len(r.dqis_db._queue)
-        0
-        >>> r.saveToQueue()
-        >>> len(r.dqis_db._queue) 
-        1
+        #possible to add exception testing      
         """
         self._require_db_connection()
         self._require_savable()
@@ -137,20 +90,7 @@ class DQISResult(Document):
         
     def get_document(self):
         """
-        If object has id or _id atributes and has connection, then get whole document.
-        >>> doc_id = '100215-0-38bc1d29bd22844103e86f9a000500e2' 
-        >>> r = DQISResult(Database(dbname="dqis"))
-        >>> r['id'] = doc_id
-        >>> doc = r.get_document()
-        >>> doc.run
-        100215
-        >>> doc_id = '' 
-        >>> r = DQISResult(Database(dbname="dqis"))
-        >>> r['id'] = doc_id
-        >>> doc = r.get_document() #doctest: +IGNORE_EXCEPTION_DETAIL
-        Traceback (most recent call last):
-        ...
-        DQISResultNotSavable: DQISResult is not saveable. Exception raised by {'id': ''}
+        If object has id or _id atributes and has connection, then get whole document.        
         """
         #get doc and save - both requires ID
         doc_id = self._find_id()
